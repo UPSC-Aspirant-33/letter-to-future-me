@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter to Future Me ✉️</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{min-height:100vh;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);font-family:'Segoe UI',sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center;padding:24px 16px;overflow-x:hidden;}
+canvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none;}
+.app{position:relative;z-index:10;width:100%;max-width:640px;display:flex;flex-direction:column;gap:20px;}
+h1{text-align:center;font-size:1.8rem;font-weight:700;background:linear-gradient(90deg,#00ffd5,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tagline{text-align:center;opacity:0.6;font-size:0.85rem;margin-top:-12px;}
+.compose-card{background:rgba(255,255,255,0.07);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.15);border-radius:24px;overflow:hidden;}
+.email-header{background:rgba(0,0,0,0.2);padding:16px 20px;display:flex;flex-direction:column;gap:10px;}
+.email-row{display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:10px;}
+.email-row:last-child{border-bottom:none;padding-bottom:0;}
+.email-label{font-size:0.8rem;opacity:0.5;min-width:55px;text-transform:uppercase;letter-spacing:1px;}
+.email-row input{background:transparent;border:none;color:#fff;font-size:0.9rem;flex:1;outline:none;font-family:inherit;}
+.email-row input::placeholder{opacity:0.35;}
+.email-row input:disabled{opacity:0.7;}
+.to-badge{background:rgba(0,255,213,0.15);border:1px solid rgba(0,255,213,0.3);color:#00ffd5;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600;}
+.email-body{padding:20px;}
+textarea{background:transparent;border:none;color:#fff;font-size:0.95rem;width:100%;height:180px;resize:none;outline:none;font-family:inherit;line-height:1.7;}
+textarea::placeholder{opacity:0.35;}
+.send-bar{padding:16px 20px;background:rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.word-count{font-size:0.75rem;opacity:0.4;}
+.send-btn{background:linear-gradient(135deg,#00ffd5,#0ea5e9);border:none;color:#0d1b2a;padding:12px 28px;border-radius:18px;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;gap:8px;}
+.send-btn:hover{transform:scale(1.03);box-shadow:0 8px 30px rgba(0,255,213,0.4);}
+.inbox-header{display:flex;align-items:center;justify-content:space-between;}
+.inbox-header h2{font-size:1.1rem;}
+.inbox-count{background:rgba(0,255,213,0.15);color:#00ffd5;border:1px solid rgba(0,255,213,0.3);padding:3px 12px;border-radius:12px;font-size:0.8rem;}
+.inbox{display:flex;flex-direction:column;gap:12px;}
+.mail-item{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:18px;overflow:hidden;cursor:pointer;transition:all 0.3s;}
+.mail-item:hover{border-color:rgba(255,255,255,0.25);}
+.mail-item.open{border-color:rgba(0,255,213,0.3);}
+.mail-top{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.mail-subject{font-weight:600;font-size:0.95rem;flex:1;}
+.mail-date{font-size:0.72rem;opacity:0.45;white-space:nowrap;}
+.mail-arrow{opacity:0.4;transition:transform 0.3s;font-size:0.8rem;}
+.mail-item.open .mail-arrow{transform:rotate(180deg);}
+.mail-body{padding:0 18px;max-height:0;overflow:hidden;transition:all 0.4s;font-size:0.88rem;line-height:1.7;opacity:0.8;}
+.mail-item.open .mail-body{max-height:400px;padding:0 18px 16px;}
+.mail-delete{background:transparent;border:none;color:rgba(255,80,80,0.5);cursor:pointer;font-size:0.8rem;padding:4px 8px;transition:color 0.2s;}
+.mail-delete:hover{color:#ff5050;}
+.empty{text-align:center;padding:28px;opacity:0.4;font-size:0.9rem;}
+/* Sent animation */
+.sent-toast{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);z-index:999;opacity:0;pointer-events:none;transition:all 0.5s;}
+.sent-toast.show{opacity:1;}
+.sent-toast-box{background:rgba(0,255,213,0.1);border:1px solid #00ffd5;border-radius:24px;padding:32px 40px;text-align:center;}
+.sent-icon{font-size:3rem;margin-bottom:12px;}
+.sent-msg{font-size:1.1rem;color:#00ffd5;font-weight:600;}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="app">
+  <h1>✉️ Letter to Future Me</h1>
+  <p class="tagline">Write to the version of you who made it</p>
+  <div class="compose-card">
+    <div class="email-header">
+      <div class="email-row">
+        <span class="email-label">To</span>
+        <span class="to-badge">Future Me 🇮🇳 IAS Officer</span>
+      </div>
+      <div class="email-row">
+        <span class="email-label">From</span>
+        <input type="text" id="fromInput" placeholder="Your name (e.g. Priya, 2025)">
+      </div>
+      <div class="email-row" style="border-bottom:none;padding-bottom:0">
+        <span class="email-label">Subject</span>
+        <input type="text" id="subjectInput" placeholder="One day I will become…">
+      </div>
+    </div>
+    <div class="email-body">
+      <textarea id="bodyInput" placeholder="Dear Future Me,&#10;&#10;I know today is hard. The syllabus feels endless, the pressure suffocating. But I trust you. I know you pushed through…&#10;&#10;Write anything that comes." oninput="updateWords()"></textarea>
+    </div>
+    <div class="send-bar">
+      <span class="word-count"><span id="wordCount">0</span> words</span>
+      <button class="send-btn" onclick="sendLetter()">📨 Send to Future <span>→</span></button>
+    </div>
+  </div>
+  <div class="inbox-header">
+    <h2>📬 Sent Letters</h2>
+    <span class="inbox-count" id="inboxCount">0 letters</span>
+  </div>
+  <div class="inbox" id="inboxEl"></div>
+</div>
+<div class="sent-toast" id="sentToast">
+  <div class="sent-toast-box">
+    <div class="sent-icon">✉️</div>
+    <div class="sent-msg">Delivered to your future self 💙</div>
+  </div>
+</div>
+<script>
+// BG
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+let W,H,stars=[];function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}resize();window.addEventListener('resize',resize);
+class Star{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1+0.3;this.a=Math.random()*0.5+0.1;this.speed=Math.random()*0.5+0.2;}update(){this.a+=Math.sin(Date.now()*0.001*this.speed)*0.01;this.a=Math.max(0.05,Math.min(0.8,this.a));}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${this.a})`;ctx.fill();}}
+for(let i=0;i<200;i++)stars.push(new Star());
+(function anim(){ctx.clearRect(0,0,W,H);stars.forEach(s=>{s.update();s.draw();});requestAnimationFrame(anim);})();
+
+function updateWords(){
+  const t=document.getElementById('bodyInput').value;
+  const words=t.trim()?t.trim().split(/\s+/).length:0;
+  document.getElementById('wordCount').textContent=words;
+}
+
+function sendLetter(){
+  const body=document.getElementById('bodyInput').value.trim();
+  if(!body){alert('Write something to your future self 💌');return;}
+  const letter={from:document.getElementById('fromInput').value||'Present Me',subject:document.getElementById('subjectInput').value||'A message for you',body,date:new Date().toLocaleString()};
+  const letters=JSON.parse(localStorage.getItem('future_letters')||'[]');
+  letters.unshift(letter);
+  localStorage.setItem('future_letters',JSON.stringify(letters));
+  document.getElementById('bodyInput').value='';
+  document.getElementById('subjectInput').value='';
+  document.getElementById('fromInput').value='';
+  updateWords();
+  showSentAnim();
+  renderInbox();
+}
+function showSentAnim(){
+  const t=document.getElementById('sentToast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+function renderInbox(){
+  const letters=JSON.parse(localStorage.getItem('future_letters')||'[]');
+  document.getElementById('inboxCount').textContent=letters.length+' letter'+(letters.length!==1?'s':'');
+  const el=document.getElementById('inboxEl');
+  if(!letters.length){el.innerHTML='<div class="empty">No letters yet. Write to your future self above ✨</div>';return;}
+  el.innerHTML='';
+  letters.forEach((l,i)=>{
+    const div=document.createElement('div');div.className='mail-item';
+    div.innerHTML=`<div class="mail-top" onclick="toggleMail(this.parentElement)">
+      <span class="mail-subject">📌 ${escH(l.subject)}</span>
+      <span class="mail-date">${l.date}</span>
+      <button class="mail-delete" onclick="event.stopPropagation();deleteLetter(${i})">✕</button>
+      <span class="mail-arrow">▼</span>
+    </div>
+    <div class="mail-body" style="white-space:pre-wrap">${escH(l.body)}</div>`;
+    el.appendChild(div);
+  });
+}
+function toggleMail(el){el.classList.toggle('open');}
+function deleteLetter(i){
+  const letters=JSON.parse(localStorage.getItem('future_letters')||'[]');
+  letters.splice(i,1);
+  localStorage.setItem('future_letters',JSON.stringify(letters));
+  renderInbox();
+}
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+renderInbox();
+</script>
+</body>
+</html>
